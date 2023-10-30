@@ -18,6 +18,14 @@ class BackGroundService extends ChangeNotifier {
     isar = isarDb;
   }
 
+  List<PostDB>? posts = [];
+  Future readAllArts() async {
+    var list = isar?.postDBs.filter().bodyIsNotNull().findAll();
+    posts = await list;
+    // notifyListeners();
+    return true;
+  }
+
   getUser() async {
     final dio = Dio();
     Response response =
@@ -25,12 +33,13 @@ class BackGroundService extends ChangeNotifier {
     return response.data;
   }
 
-  getPostFromUserID(String userID) async {
+  String? userId;
+  getPostFromUserID() async {
     final dio = Dio();
     print("Start POSTS API");
     await Future.delayed(const Duration(seconds: 15));
     Response response = await dio
-        .get("https://jsonplaceholder.typicode.com/posts/?userId=$userID");
+        .get("https://jsonplaceholder.typicode.com/posts/?userId=$userId");
     List list = response.data;
     for (var element in list) {
       final postIsar = PostDB()
@@ -43,6 +52,7 @@ class BackGroundService extends ChangeNotifier {
       });
     }
     print("Saved to Isar and closed");
+    userId = null;
     return list;
   }
 }

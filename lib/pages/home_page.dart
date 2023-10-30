@@ -1,5 +1,6 @@
 import 'package:example/bg_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
@@ -30,18 +31,29 @@ class _HomeState extends State<Home> {
               snapshot.connectionState == ConnectionState.done &&
               !snapshot.hasError) {
             List<dynamic> list = snapshot.data;
-            return ListView.builder(itemBuilder: (ctx, index) {
-              dynamic data = list[index];
-              return ListTile(
-                onTap: () async {
-                  /// Start BackGround Service
-                },
-                title: Text(data['title']),
-                subtitle: Text(data['body']),
-                leading: Text(data['id']),
-                trailing: Text(data['userId']),
-              );
-            });
+            return ListView.builder(
+                itemCount: list.length,
+                itemBuilder: (ctx, index) {
+                  dynamic data = list[index];
+                  return ListTile(
+                    onTap: () async {
+                      /// Start BackGround Service
+                      context.read<BackGroundService>().userId =
+                          "${data['id']}";
+                      final service = FlutterBackgroundService();
+                      var isRunning = await service.isRunning();
+                      if (isRunning) {
+                        service.invoke("stopService");
+                      } else {
+                        service.startService();
+                      }
+                    },
+                    title: Text("${data['name']}"),
+                    subtitle: Text("${data['email']}"),
+                    leading: Text("${data['id']}"),
+                    // trailing: Text(data['userId']),
+                  );
+                });
           }
           return const Center(child: CircularProgressIndicator());
         },

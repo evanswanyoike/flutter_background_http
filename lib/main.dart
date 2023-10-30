@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
@@ -10,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -167,7 +165,9 @@ void onStart(ServiceInstance service) async {
       final iosInfo = await deviceInfo.iosInfo;
       device = iosInfo.model;
     }
-    List? data = await fetchPosts();
+    // List? data = await fetchPosts();
+    BackGroundService bg = BackGroundService();
+    var data = await bg.getPostFromUserID();
     service.invoke(
       'update',
       {
@@ -181,21 +181,21 @@ void onStart(ServiceInstance service) async {
   });
 }
 
-Future<List?> fetchPosts() async {
-  var url =
-      "https://techcrunch.com/wp-json/wp/v2/posts?context=embed&per_page=10&page=1";
-  final uri = Uri.parse(url);
-  print("http request . ____________________>...>>>>>>>>>>");
-  final response = await http.get(uri);
-  print(response.body);
-  if (response.statusCode == 200) {
-    final json = jsonDecode(response.body) as List;
-    return json;
-  } else {
-    return [];
-    //
-  }
-}
+// Future<List?> fetchPosts() async {
+//   var url =
+//       "https://techcrunch.com/wp-json/wp/v2/posts?context=embed&per_page=10&page=1";
+//   final uri = Uri.parse(url);
+//   print("http request . ____________________>...>>>>>>>>>>");
+//   final response = await http.get(uri);
+//   print(response.body);
+//   if (response.statusCode == 200) {
+//     final json = jsonDecode(response.body) as List;
+//     return json;
+//   } else {
+//     return [];
+//     //
+//   }
+// }
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -228,9 +228,12 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider(create: (context) => BackGroundService()),
       ],
-      child: const MaterialApp(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: HomeTest(),
+        theme: ThemeData(
+          useMaterial3: true,
+        ),
+        home: const HomeTest(),
         /*    home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -320,17 +323,26 @@ class _HomeTestState extends State<HomeTest> {
     super.initState();
   }
 
+  int currentIndex = 0;
   @override
   Widget build(BuildContext context) {
     PageController pageController = PageController();
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
+        onTap: (page) {
+          pageController.jumpToPage(page);
+          currentIndex = page;
+          setState(() {});
+        },
+        currentIndex: currentIndex,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.data_object), label: "Isar"),
         ],
       ),
       body: PageView(
+        controller: pageController,
+        physics: const NeverScrollableScrollPhysics(),
         children: const [
           Home(),
           IsarHome(),
