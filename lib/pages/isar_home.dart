@@ -10,6 +10,13 @@ class IsarHome extends StatefulWidget {
 }
 
 class _IsarHomeState extends State<IsarHome> {
+  initSP() async {}
+  @override
+  void initState() {
+    context.read<BackGroundService>().readAllArts();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,15 +26,16 @@ class _IsarHomeState extends State<IsarHome> {
       body: Consumer<BackGroundService>(
         builder: (key, provider, child) {
           return ListView.builder(
-              itemCount: provider.posts?.length ?? 0,
-              itemBuilder: (context, index) {
-                var post = provider.posts?[index];
-                return ListTile(
-                  leading: Text("${post?.userId}"),
-                  title: Text("${post?.title}"),
-                  subtitle: Text("${post?.body}"),
-                );
-              });
+            itemCount: provider.posts?.length ?? 0,
+            itemBuilder: (context, index) {
+              var post = provider.posts?[index];
+              return ListTile(
+                leading: Text("${post?.userId}"),
+                title: Text("${post?.title}"),
+                subtitle: Text("${post?.body}"),
+              );
+            },
+          );
         },
       ),
     );

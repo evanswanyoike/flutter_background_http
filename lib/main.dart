@@ -123,62 +123,62 @@ void onStart(ServiceInstance service) async {
   });
 
   // bring to foreground
-  Timer.periodic(const Duration(seconds: 6), (timer) async {
-    if (service is AndroidServiceInstance) {
-      if (await service.isForegroundService()) {
-        /// OPTIONAL for use custom notification
-        /// the notification id must be equals with AndroidConfiguration when you call configure() method.
-        flutterLocalNotificationsPlugin.show(
-          888,
-          'COOL SERVICE',
-          'Awesome ${DateTime.now()}',
-          const NotificationDetails(
-            android: AndroidNotificationDetails(
-              'my_foreground',
-              'MY FOREGROUND SERVICE',
-              icon: 'ic_bg_service_small',
-              ongoing: true,
-            ),
+  // Timer.periodic(const Duration(minutes: 5), (timer) async {
+  if (service is AndroidServiceInstance) {
+    if (await service.isForegroundService()) {
+      /// OPTIONAL for use custom notification
+      /// the notification id must be equals with AndroidConfiguration when you call configure() method.
+      flutterLocalNotificationsPlugin.show(
+        888,
+        'Text to Video',
+        'Generating something awesome',
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'my_foreground',
+            'MY FOREGROUND SERVICE',
+            icon: 'ic_bg_service_small',
+            ongoing: true,
           ),
-        );
+        ),
+      );
 
-        // if you don't using custom notification, uncomment this
-        service.setForegroundNotificationInfo(
-          title: "My App Service",
-          content: "Updated at ${DateTime.now()}",
-        );
-      }
+      // if you don't using custom notification, uncomment this
+      service.setForegroundNotificationInfo(
+        title: "My App Service",
+        content: "Updated at ${DateTime.now()}",
+      );
     }
+  }
 
-    /// you can see this log in logcat
-    print('FLUTTER BACKGROUND SERVICE: ${DateTime.now()}');
+  /// you can see this log in logcat
+  print('FLUTTER BACKGROUND SERVICE: ${DateTime.now()}');
 
-    // test using external plugin
-    final deviceInfo = DeviceInfoPlugin();
-    String? device;
-    if (Platform.isAndroid) {
-      final androidInfo = await deviceInfo.androidInfo;
-      device = androidInfo.model;
-    }
-
-    if (Platform.isIOS) {
-      final iosInfo = await deviceInfo.iosInfo;
-      device = iosInfo.model;
-    }
-    // List? data = await fetchPosts();
-    BackGroundService bg = BackGroundService();
-    var data = await bg.getPostFromUserID();
-    service.invoke(
-      'update',
-      {
-        "current_date": DateTime.now().toIso8601String(),
-        "device": device,
-        "list": data ?? [],
-      },
-    );
-    timer.cancel();
-    service.stopSelf();
-  });
+  // test using external plugin
+  final deviceInfo = DeviceInfoPlugin();
+  // String? device;
+  // if (Platform.isAndroid) {
+  //   final androidInfo = await deviceInfo.androidInfo;
+  //   device = androidInfo.model;
+  // }
+  //
+  // if (Platform.isIOS) {
+  //   final iosInfo = await deviceInfo.iosInfo;
+  //   device = iosInfo.model;
+  // }
+  // List? data = await fetchPosts();
+  BackGroundService bg = BackGroundService();
+  var data = await bg.getPostFromUserID();
+  service.invoke(
+    'update',
+    {
+      "current_date": DateTime.now().toIso8601String(),
+      // "device": device,
+      "list": data ?? [],
+    },
+  );
+  // timer.cancel();
+  service.stopSelf();
+  // });
 }
 
 // Future<List?> fetchPosts() async {
@@ -317,9 +317,10 @@ class HomeTest extends StatefulWidget {
 }
 
 class _HomeTestState extends State<HomeTest> {
+  openIsar() async => context.read<BackGroundService>().openIsarDatabase();
   @override
   void initState() {
-    context.read<BackGroundService>().openIsarDatabase();
+    openIsar();
     super.initState();
   }
 
